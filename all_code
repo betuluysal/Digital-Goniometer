@@ -36,6 +36,17 @@ WordToStr(veri10bit,cevir);
 Lcd_Out(1,1,"GELISIM DURUMU");
 
 
+derece=(float)veri10bit*180;
+derece=derece/1024;
+                   dereceD=(int)derece;
+
+    WordToStr(dereceD,aci);
+
+Lcd_Out(2,2,aci);
+Lcd_Out(2,8,"derece");
+   Delay_ms(200);
+   Lcd_Cmd(_LCD_CLEAR);
+
 }
-while(1);
+ while(1);
 }
