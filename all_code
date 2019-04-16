@@ -1,52 +1,41 @@
-sbit LCD_RS at RB4_bit;
-sbit LCD_EN at RB5_bit;
-sbit LCD_D4 at RB0_bit;
-sbit LCD_D5 at RB1_bit;
-sbit LCD_D6 at RB2_bit;
-sbit LCD_D7 at RB3_bit;
 
-sbit LCD_RS_Direction at TRISB4_bit;
-sbit LCD_EN_Direction at TRISB5_bit;
-sbit LCD_D4_Direction at TRISB0_bit;
-sbit LCD_D5_Direction at TRISB1_bit;
-sbit LCD_D6_Direction at TRISB2_bit;
-sbit LCD_D7_Direction at TRISB3_bit;
+#include <LiquidCrystal.h> /* LCD kullanimi icin kutuphane dahil edilmelidir */
+/*
+ Devre semasi;
+ - LCD'nin RS pini -> Arduino'nun 12. pini
+ - LCD'nin Enable (E) pini -> Arduino'nun 11. pini
+ - LCD'nin D4 pini -> Arduino'nun 5. pini
+ - LCD'nin D5 pini -> Arduino'nun 4. pini
+ - LCD'nin D6 pini -> Arduino'nun 3. pini
+ - LCD'nin D7 pini -> Arduino'nun 2. pini
+ 
+ - LCD'nin R/W pini -> topraga
+ - LCD'nin R0 pini -> potansiyometre çikisina
+ - LCD VDD -> Arduino 5 Voltuna
+ - LCD VSS -> topraga
+*/
+const int analogInPin = A0; //A0 pinini sabit analog pin olaraq tanimliyoruz
+ 
+int potdegeri = 0; //Potansiyometre degiskenini tanimlayip 0 degerini atiyoruz
+float  aci; //Açi degiskenini tanimliyoruz
+float kalanaci;
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); 
 
-char cevir[6];
-char aci[12];
-float derece;
-unsigned int veri10bit;
-unsigned int dereceD;
-
-void main() {
-
-ADCON1=0x80;
-TRISA= 0xFF;
-TRISC=0;
-
-Lcd_Init();
-Lcd_Cmd(_LCD_CLEAR);
-Lcd_Cmd(_LCD_CURSOR_OFF);
-Lcd_Cmd(_LCD_CLEAR);
-
-do
-{
-veri10bit=ADC_Read(3);
-WordToStr(veri10bit,cevir);
-Lcd_Out(1,1,"GELISIM DURUMU");
-
-
-derece=(float)veri10bit*180;
-derece=derece/1024;
-                   dereceD=(int)derece;
-
-    WordToStr(dereceD,aci);
-
-Lcd_Out(2,2,aci);
-Lcd_Out(2,8,"derece");
-   Delay_ms(200);
-   Lcd_Cmd(_LCD_CLEAR);
-
+void setup() {
+  Serial.begin(9600);
+  lcd.begin(16, 2); /* Kullandigimiz LCDnin sutun ve satir sayisini belirtmeliyiz */
+  lcd.print("Betul UYSAL"); /* Ekrana yazi yazalim */
+delay(3000);
 }
- while(1);
+
+void loop() {
+  
+  potdegeri = analogRead(analogInPin); //Analog degerden okudugunu potdegeri degiskenine atiyoruz
+  aci = map(potdegeri , 0, 1023, 0, 270);  //Haritalandirma yaparak 0 degerini 0 derece, 1023 degerini(max) 270 derece olarak tanimliyoruz
+  kalanaci = 180 - aci; //kalan açiyi bulmak için 180 dereceden bulunan açiyi çikariyoruz
+  lcd.setCursor(0,0); //Imleçi 0,0 koordinatina atiyoruz
+  lcd.print("Aci: "); //Ekrana açi sözcügünü yazdiriyoruz
+  lcd.print(kalanaci);//Okunan açi degerini ekrana yazdiriyoruz
+  delay(500);//500 ms bekleyip tekrardan ölçüm yapmasini sagliyoruz
+
 }
